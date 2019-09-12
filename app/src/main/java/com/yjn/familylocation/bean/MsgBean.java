@@ -22,6 +22,10 @@ public class MsgBean {
     //内容可为空（定位返回，普通消息需要传递）
     private String content;
 
+    //fastjson需要无参构造，否则报错
+    public MsgBean() {
+    }
+
     public MsgBean(int type) {
         this.type = type;
     }

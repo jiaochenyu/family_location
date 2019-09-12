@@ -157,6 +157,7 @@ public class BackPushService extends Service {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("action", "com.msgpush.action");
         jsonObject.put("alert", msg);
+//        jsonObject.put("alert", "哈哈哈");
         //透传不显示通知栏 https://leancloud.cn/docs/push_guide.html#hash79355699
         jsonObject.put("silent", true);
 
@@ -230,5 +231,6 @@ public class BackPushService extends Service {
         msgBean.setTargetInstallationId(targetInstallationId);
 
         sendGroup(JSON.toJSONString(msgBean), targetInstallationId);
+//        sendGroup(new Gson().toJson(msgBean), targetInstallationId);
     }
 }

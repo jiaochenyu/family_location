@@ -42,10 +42,9 @@ public class MyReceiver extends BroadcastReceiver {
 
                 JSONObject json = new JSONObject(intent.getExtras().getString("com.avoscloud.Data"));
                 final String alert = json.getString("alert");
-                Log.i(TAG, "onReceive: " + alert);
 
                 MsgBean msgBean = JSON.parseObject(alert, MsgBean.class);
-                Log.i(TAG, "onReceive: type = " + msgBean.getType() + " data = " + msgBean.getContent());
+                Log.i(TAG, "onReceive: type = " + msgBean.getType() + " content = " + msgBean.getContent());
 
                 // TODO: 2019/9/12 处理不同消息
                 if (MsgBean.REQUEST_LOCATION == msgBean.getType()) {
