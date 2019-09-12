@@ -46,6 +46,8 @@ public class BackPushService extends Service {
 
     private SPUtils spUtils;
 
+    private boolean showToast;
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -147,7 +149,7 @@ public class BackPushService extends Service {
      * 群发
      */
     private void sendGroup(String msg, String targetInstallationId) {
-        if (targetInstallationId.equals(installationId)){
+        if (targetInstallationId.equals(installationId)) {
             ToastUtils.showShort("发给自己干嘛呀(*￣︶￣)");
             return;
         }
@@ -177,12 +179,18 @@ public class BackPushService extends Service {
 
             @Override
             public void onNext(JSONObject jsonObject) {
-                ToastUtils.showShort("消息发送成功");
+                if (showToast) {
+                    ToastUtils.showShort("消息发送成功");
+                    showToast = false;
+                }
             }
 
             @Override
             public void onError(Throwable e) {
-                ToastUtils.showShort("消息发送失败: " + e.getMessage());
+                if (showToast) {
+                    ToastUtils.showShort("消息发送失败: " + e.getMessage());
+                    showToast = false;
+                }
             }
 
             @Override
@@ -208,6 +216,7 @@ public class BackPushService extends Service {
             //目标方
             String targetInstallationId = event.getRequestInstallationId();
 
+            showToast = false;
             sendGroup(JSON.toJSONString(msgBean), targetInstallationId);
         }
     }
@@ -236,6 +245,7 @@ public class BackPushService extends Service {
         //目标方
         msgBean.setTargetInstallationId(targetInstallationId);
 
+        showToast = true;
         sendGroup(JSON.toJSONString(msgBean), targetInstallationId);
 //        sendGroup(new Gson().toJson(msgBean), targetInstallationId);
     }

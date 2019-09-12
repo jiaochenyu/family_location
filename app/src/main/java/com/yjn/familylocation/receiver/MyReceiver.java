@@ -12,6 +12,7 @@ import androidx.core.app.NotificationCompat;
 import com.alibaba.fastjson.JSON;
 import com.yjn.familylocation.MsgActivity;
 import com.yjn.familylocation.R;
+import com.yjn.familylocation.bean.LatLonBean;
 import com.yjn.familylocation.bean.MsgBean;
 import com.yjn.familylocation.event.GetLocationEvent;
 
@@ -56,7 +57,9 @@ public class MyReceiver extends BroadcastReceiver {
                     Log.i(TAG, "onReceive: 定位数据 " + msgBean.getContent()
                             //requestInstallationId用于地图展示匹配用户
                             + " requestInstallationId = " + msgBean.getRequestInstallationId());
-
+                    String latlon = msgBean.getContent();
+                    String[] latlons = latlon.split(",");
+                    EventBus.getDefault().post(new LatLonBean(Double.parseDouble(latlons[0]), Double.parseDouble(latlons[1])));
                 } else if (MsgBean.MSG == msgBean.getType()) {
                     //普通消息，可以考虑显示在状态栏
                     //如果有必要可以根据设置不同的channel，跳转到消息页面

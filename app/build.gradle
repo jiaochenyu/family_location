@@ -1,5 +1,10 @@
 apply plugin: 'com.android.application'
 
+static def releaseTime() {
+    //返回北京时间
+    return new Date().format("yyyy-MM-dd", TimeZone.getTimeZone("UTC+8"))
+}
+
 android {
     compileSdkVersion 28
     defaultConfig {
@@ -9,11 +14,42 @@ android {
         versionCode 2
         versionName "2.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        ndk {
+            //设置支持的SO库架构（开发者可以根据需要，选择一个或多个平台的so）
+            abiFilters "armeabi", "armeabi-v7a", "arm64-v8a"
+        }
     }
+
+    //签名配置
+    signingConfigs {
+        debug {
+
+        }
+        release {
+            storeFile file("D:\\Software\\Nutstore\\Documents\\我的坚果云\\个人项目\\签名文件yangxiaoge\\yangxiaoge.jks")
+            //release证书
+            storePassword "bruce123456"                            //签名证书密码
+            keyAlias "bruce"                                 //别名
+            keyPassword "bruce123456"                              //别名密码
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
+            debuggable true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
+            //使用release证书签名
+            signingConfig signingConfigs.release
+        }
+    }
+
+    //打包配置
+    applicationVariants.all { variant ->
+        variant.outputs.all {
+            outputFileName = "familykeep_v${defaultConfig.versionName}_${releaseTime()}.apk"
         }
     }
 
@@ -47,5 +83,7 @@ dependencies {
     implementation 'org.greenrobot:eventbus:3.1.1'
 
     // 高德地图定位
-    implementation 'com.amap.api:location:4.7.0'
+    implementation 'com.amap.api:location:latest.integration'
+    // 3D地图so及jar
+    implementation 'com.amap.api:3dmap:latest.integration'
 }

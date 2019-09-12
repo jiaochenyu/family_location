@@ -4,8 +4,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
+import com.yjn.familylocation.MainActivity;
 import com.yjn.familylocation.service.BackLocationService;
 import com.yjn.familylocation.service.BackPushService;
+import com.yjn.familylocation.util.GDLocationUtil;
 import com.yjn.familylocation.util.Utils;
 
 /**
@@ -19,6 +21,9 @@ import com.yjn.familylocation.util.Utils;
 public class BootReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
+        // 定位工具初始化
+        GDLocationUtil.init(Utils.getApp());
+
         if (!Utils.isServiceRunning(BackPushService.class.getName())) {
             Utils.getApp().startService(new Intent(context, BackPushService.class));
         }
