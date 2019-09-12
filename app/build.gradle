@@ -86,4 +86,7 @@ dependencies {
     implementation 'com.amap.api:location:latest.integration'
     // 3D地图so及jar
     implementation 'com.amap.api:3dmap:latest.integration'
+
+    //应用升级
+    implementation 'com.azhon:appupdate:2.4.0'
 }

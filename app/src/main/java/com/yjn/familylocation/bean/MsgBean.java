@@ -5,7 +5,7 @@ package com.yjn.familylocation.bean;
  *     author: Bruce_Yang
  *     blog  : https://yangjianan.gitee.io
  *     time  : 2019/9/12
- *     desc  : 说明
+ *     desc  : 消息推送实体类
  * </pre>
  */
 public class MsgBean {

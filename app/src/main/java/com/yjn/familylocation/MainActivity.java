@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -13,6 +14,8 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.amap.api.maps.AMap;
 import com.amap.api.maps.CameraUpdateFactory;
 import com.amap.api.maps.MapView;
@@ -22,9 +25,11 @@ import com.amap.api.maps.model.LatLng;
 import com.amap.api.maps.model.Marker;
 import com.amap.api.maps.model.MarkerOptions;
 import com.amap.api.maps.model.MyLocationStyle;
+import com.azhon.appupdate.manager.DownloadManager;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 import com.yjn.familylocation.bean.Constants;
 import com.yjn.familylocation.bean.LatLonBean;
+import com.yjn.familylocation.bean.UpdateBean;
 import com.yjn.familylocation.event.RequestEvent;
 import com.yjn.familylocation.service.BackLocationService;
 import com.yjn.familylocation.service.BackPushService;
@@ -37,8 +42,15 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.io.IOException;
+
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 /**
  * <pre>
@@ -49,6 +61,7 @@ import io.reactivex.disposables.Disposable;
  * </pre>
  */
 public class MainActivity extends AppCompatActivity {
+    private static final String TAG = MainActivity.class.getSimpleName();
     private MapView mMapView = null;
     //初始化地图控制器对象
     private AMap aMap;
@@ -56,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
     private Marker marker;
     private LatLng latLng;
     private boolean followMove;
-    private EditText targetId  ;
+    private EditText targetId;
 
 
     @Override
@@ -96,6 +109,8 @@ public class MainActivity extends AppCompatActivity {
                             if (!Utils.isServiceRunning(BackLocationService.class.getName())) {
                                 startService(new Intent(MainActivity.this, BackLocationService.class));
                             }
+
+                            checkUpdate();
                         }
                     }
 
@@ -109,6 +124,51 @@ public class MainActivity extends AppCompatActivity {
 
                     }
                 });
+    }
+
+    /**
+     * 检查应用升级
+     */
+    private void checkUpdate() {
+        OkHttpClient okHttpClient = new OkHttpClient();
+        Request request = new Request.Builder().url(Constants.UPDATE_URL_CHECK).build();
+        //enqueue就是将此次的call请求加入异步请求队列，会开启新的线程执行，并将执行的结果通过Callback接口回调的形式返回。
+        okHttpClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                //请求失败的回调方法
+                Log.e(TAG, "onFailure: ", e);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                //请求成功的回调方法
+                String result = response.body().string();
+                Log.i(TAG, result);
+                //关闭body
+                response.body().close();
+
+                JSONArray jsonArray = JSONArray.parseArray(result);
+
+                final UpdateBean updateBean = JSON.parseObject(jsonArray.get(0).toString(), UpdateBean.class);
+                if (BuildConfig.VERSION_CODE < updateBean.getApkData().getVersionCode()) {
+                    ToastUtils.showShort("发现新版本，开始下载咯(*^▽^*)");
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            DownloadManager manager = DownloadManager.getInstance(MainActivity.this);
+                            manager.setApkName("appupdate.apk")
+                                    .setApkUrl(Constants.UPDATE_URL_BASE + updateBean.getApkData().getOutputFile())
+                                    .setSmallIcon(R.mipmap.ic_logo)
+                                    //可设置，可不设置
+                                    //.setConfiguration(configuration)
+                                    .download();
+                        }
+                    }).start();
+                }
+            }
+        });
+
     }
 
     private void initMapView(Bundle savedInstanceState) {
