@@ -2,6 +2,8 @@ package com.yjn.familylocation;
 
 import android.app.Application;
 
+import com.yjn.familylocation.util.GDLocationUtil;
+
 import cn.leancloud.AVLogger;
 import cn.leancloud.AVOSCloud;
 import cn.leancloud.push.PushService;

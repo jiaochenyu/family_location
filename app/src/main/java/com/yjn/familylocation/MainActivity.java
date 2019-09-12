@@ -1,27 +1,29 @@
 package com.yjn.familylocation;
 
-import android.app.ActivityManager;
-import android.content.Context;
+import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.tbruyelle.rxpermissions2.RxPermissions;
 import com.yjn.familylocation.bean.Constants;
-import com.yjn.familylocation.bean.MsgBean;
-import com.yjn.familylocation.event.GetLocationEvent;
 import com.yjn.familylocation.event.RequestEvent;
 import com.yjn.familylocation.service.BackLocationService;
 import com.yjn.familylocation.service.BackPushService;
+import com.yjn.familylocation.util.GDLocationUtil;
 import com.yjn.familylocation.util.SPUtils;
+import com.yjn.familylocation.util.ToastUtils;
 import com.yjn.familylocation.util.Utils;
 
 import org.greenrobot.eventbus.EventBus;
 
-import java.util.List;
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
 
 /**
  * <pre>
@@ -38,13 +40,53 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if (!Utils.isServiceRunning(BackPushService.class.getName())) {
-            startService(new Intent(this, BackPushService.class));
-        }
+        // TODO: 2019/9/12 动态授权之后初始化下面的所有逻辑
+        new RxPermissions(this).request(
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.READ_PHONE_STATE)
+                .subscribe(new Observer<Boolean>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
 
-        if (!Utils.isServiceRunning(BackLocationService.class.getName())) {
-            startService(new Intent(this, BackLocationService.class));
-        }
+                    }
+
+                    @Override
+                    public void onNext(Boolean aBoolean) {
+                        if (!aBoolean) {
+                            ToastUtils.showShort("权限不足，无法使用！");
+                        } else {
+                            // 定位工具初始化
+                            GDLocationUtil.init(MainActivity.this);
+                            if (!Utils.isServiceRunning(BackPushService.class.getName())) {
+                                startService(new Intent(MainActivity.this, BackPushService.class));
+                            }
+
+                            if (!Utils.isServiceRunning(BackLocationService.class.getName())) {
+                                startService(new Intent(MainActivity.this, BackLocationService.class));
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        String installationId = SPUtils.getInstance(Constants.SP_NAME).getString(Constants.INSTALLATIONID_SP,
+                "");
+        TextView msg = findViewById(R.id.msg_tv);
+        msg.setText("欢迎使用家人守护！\n\n" + "本机installationid:\n\n" + installationId);
     }
 
     @Override

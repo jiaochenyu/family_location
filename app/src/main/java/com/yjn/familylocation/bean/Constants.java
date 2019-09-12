@@ -13,5 +13,7 @@ public class Constants {
     //sp name
     public static final String SP_NAME ="family_location.xml";
     //目标设备INSTALLATIONID
-    public static final String TARGET_INSTALLATIONID_SP ="";
+    public static final String TARGET_INSTALLATIONID_SP ="target_installationid_sp";
+    //本设备INSTALLATIONID
+    public static final String INSTALLATIONID_SP ="my_installationid_sp";
 }

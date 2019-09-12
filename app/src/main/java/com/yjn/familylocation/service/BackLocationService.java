@@ -7,7 +7,9 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
+import com.amap.api.location.AMapLocation;
 import com.yjn.familylocation.event.GetLocationEvent;
+import com.yjn.familylocation.util.GDLocationUtil;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -23,6 +25,7 @@ import org.greenrobot.eventbus.ThreadMode;
  */
 public class BackLocationService extends Service {
     public static final String TAG = BackLocationService.class.getSimpleName();
+    private String requestInstallationId;
 
     @Nullable
     @Override
@@ -53,17 +56,28 @@ public class BackLocationService extends Service {
     @Subscribe(threadMode = ThreadMode.BACKGROUND)
     public void getCurrentLocation(GetLocationEvent event) {
         if (event.getType() == GetLocationEvent.Type.定位) {
-            // TODO: 2019/9/12 调用高德定位
-            Log.i(TAG, "getCurrentLocation: 调用高德地图");
+            requestInstallationId = event.getRequestInstallationId();
 
-            // TODO: 2019/9/12 经纬度
-            String lanlon = "111,1232";
-
-            EventBus.getDefault().post(new GetLocationEvent(
-                    GetLocationEvent.Type.返回定位,
-                    event.getRequestInstallationId(),
-                    lanlon)
-            );
+            // 获取当前位置，无论是否定位过，重新进行定位
+            GDLocationUtil.getCurrentLocation(new GDLocationUtil.MyLocationListener() {
+                @Override
+                public void result(AMapLocation location) {
+                    //针对location进行相关操作，如location.getCity()，无需验证location是否为null;
+                    //定位成功回调信息，设置相关消息. 纬度+经度
+                    if (location.getLatitude() == 0.0 && location.getLongitude() == 0.0) {
+                        Log.e(TAG, "result: 定位失败 errorcode = " + location.getErrorCode()
+                                + " errorinfo = " + location.getErrorInfo());
+                        return;
+                    }
+                    String lanLon = location.getLatitude() + "," + location.getLongitude();
+                    Log.i(TAG, "result: lanLon = " + lanLon);
+                    // TODO: 2019/9/12 定位成功后返回坐标
+                    EventBus.getDefault().post(new GetLocationEvent(
+                            GetLocationEvent.Type.返回定位,
+                            requestInstallationId,
+                            lanLon));
+                }
+            });
         }
     }
 }

@@ -90,12 +90,14 @@ public class BackPushService extends Service {
             public void onNext(AVObject avObject) {
                 // 关联 installationId 到用户表等操作。
                 installationId = AVInstallation.getCurrentInstallation().getInstallationId();
+                spUtils.put(Constants.INSTALLATIONID_SP, installationId);
                 Log.i(TAG, "onNext: " + "保存成功：" + installationId);
             }
 
             @Override
             public void onError(Throwable e) {
                 installationId = "";
+                spUtils.put(Constants.INSTALLATIONID_SP, installationId);
                 Log.e(TAG, "onError: 保存失败，错误信息：", e);
             }
 
@@ -145,6 +147,10 @@ public class BackPushService extends Service {
      * 群发
      */
     private void sendGroup(String msg, String targetInstallationId) {
+        if (targetInstallationId.equals(installationId)){
+            ToastUtils.showShort("发给自己干嘛呀(*￣︶￣)");
+            return;
+        }
         AVPush push = new AVPush();
 
         AVQuery<AVInstallation> query = AVInstallation.getQuery();
