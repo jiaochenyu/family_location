@@ -159,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
                             DownloadManager manager = DownloadManager.getInstance(MainActivity.this);
                             manager.setApkName("appupdate.apk")
                                     .setApkUrl(Constants.UPDATE_URL_BASE + updateBean.getApkData().getOutputFile())
-                                    .setSmallIcon(R.mipmap.ic_logo)
+                                    .setSmallIcon(R.mipmap.app_update)
                                     //可设置，可不设置
                                     //.setConfiguration(configuration)
                                     .download();
