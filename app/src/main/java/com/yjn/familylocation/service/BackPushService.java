@@ -1,17 +1,26 @@
 package com.yjn.familylocation.service;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.IBinder;
 import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.yjn.familylocation.MainActivity;
+import com.yjn.familylocation.R;
 import com.yjn.familylocation.bean.Constants;
 import com.yjn.familylocation.bean.MsgBean;
 import com.yjn.familylocation.event.GetLocationEvent;
@@ -78,12 +87,51 @@ public class BackPushService extends Service {
 
         init();
 
+        //前台通知
+        setForegroundService();
+
         screenBroadcastReceiver = new ScreenBroadcastReceiver();
         IntentFilter filter = new IntentFilter();
         filter.addAction(Intent.ACTION_SCREEN_OFF);
         filter.addAction(Intent.ACTION_SCREEN_ON);
         filter.addAction(Intent.ACTION_USER_PRESENT);
         registerReceiver(screenBroadcastReceiver, filter);
+    }
+
+    /**
+     * 前台通知
+     */
+    public void setForegroundService() {
+        // 设置启动的程序，如果存在则找出，否则新的启动
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+        intent.setComponent(new ComponentName(this, MainActivity.class));//用ComponentName得到class对象
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);// 关键的一步，设置启动模式，两种情况
+
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, 0);//将经过设置了的Intent绑定给PendingIntent
+
+        NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+        NotificationCompat.Builder builder1 = new NotificationCompat.Builder(this, getPackageName());
+        builder1
+                .setContentIntent(contentIntent)
+                .setSmallIcon(R.mipmap.ic_stat_shadowsocks)
+                .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_logo))
+                .setWhen(System.currentTimeMillis())
+                .setAutoCancel(false)
+                .setContentTitle(getString(R.string.app_name))
+                .setContentText("守护中(*^▽^*)");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(
+                    getPackageName(),
+                    getString(R.string.app_name),
+                    NotificationManager.IMPORTANCE_NONE);
+            nm.createNotificationChannel(channel);
+        }
+        Notification notification1 = builder1.build();
+        //前台运行服务
+        startForeground(20190916, notification1);
     }
 
     /**
