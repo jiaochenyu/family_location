@@ -349,6 +349,9 @@ public class MainActivity extends AppCompatActivity {
             // 不退出程序，进入后台
             moveTaskToBack(true);
             return true;
+        } else if (keyCode == KeyEvent.KEYCODE_MENU) {
+            //监控/拦截MENU键
+            return true;
         }
         return super.onKeyDown(keyCode, event);
     }
