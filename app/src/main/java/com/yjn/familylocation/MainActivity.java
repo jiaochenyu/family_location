@@ -27,6 +27,7 @@ import com.amap.api.maps.model.Marker;
 import com.amap.api.maps.model.MarkerOptions;
 import com.amap.api.maps.model.MyLocationStyle;
 import com.azhon.appupdate.config.UpdateConfiguration;
+import com.azhon.appupdate.listener.OnDownloadListener;
 import com.azhon.appupdate.manager.DownloadManager;
 import com.yanzhenjie.permission.AndPermission;
 import com.yjn.familylocation.bean.Constants;
@@ -46,6 +47,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.io.File;
 import java.io.IOException;
 
 import okhttp3.Call;
@@ -244,7 +246,7 @@ public class MainActivity extends AppCompatActivity {
                     final UpdateBean updateBean = JSON.parseObject(jsonArray.get(0).toString(), UpdateBean.class);
                     if (BuildConfig.VERSION_CODE < updateBean.getApkData().getVersionCode()) {
                         runOnUiThread(() -> startUpdate(updateBean));
-                    }else {
+                    } else {
                         Log.i(TAG, "onResponse: 应用已是最新版");
                     }
                 } catch (IOException e) {
@@ -280,10 +282,35 @@ public class MainActivity extends AppCompatActivity {
                 .setShowBgdToast(false)
                 //设置强制更新
                 .setForcedUpgrade(false)
-                /*//设置对话框按钮的点击监听
-                .setButtonClickListener(this)
+                //设置对话框按钮的点击监听
+                .setButtonClickListener(id -> ToastUtils.showShort("开始下载"))
                 //设置下载过程的监听
-                .setOnDownloadListener(this)*/;
+                .setOnDownloadListener(new OnDownloadListener() {
+                    @Override
+                    public void start() {
+
+                    }
+
+                    @Override
+                    public void downloading(int max, int progress) {
+
+                    }
+
+                    @Override
+                    public void done(File apk) {
+                        ToastUtils.showShort("下载完成");
+                    }
+
+                    @Override
+                    public void cancel() {
+
+                    }
+
+                    @Override
+                    public void error(Exception e) {
+                        ToastUtils.showShort("下载出错：" + e.getMessage());
+                    }
+                });
 
         DownloadManager manager = DownloadManager.getInstance(MainActivity.this);
         manager.setApkName("family_keep.apk")

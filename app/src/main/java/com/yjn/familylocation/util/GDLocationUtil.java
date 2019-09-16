@@ -26,11 +26,13 @@ public class GDLocationUtil {
      * @Description: 初始化地图导航，在Application onCreate中调用，只需调用一次
      */
     public static void init(Context context) {
-        if (mlocationClient==null) {
+        if (mlocationClient == null) {
             // 声明mLocationOption对象
             mlocationClient = new AMapLocationClient(context);
             // 初始化定位参数
             mLocationOption = new AMapLocationClientOption();
+        }else {
+            mlocationClient.stopLocation();
         }
         // 设置定位模式为高精度模式，Battery_Saving为低功耗模式，Device_Sensors是仅设备模式
         mLocationOption.setLocationMode(AMapLocationMode.Hight_Accuracy);
