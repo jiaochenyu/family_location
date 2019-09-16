@@ -162,29 +162,34 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                //请求成功的回调方法
-                String result = response.body().string();
-                Log.i(TAG, result);
-                //关闭body
-                response.body().close();
+                try {
+                    //请求成功的回调方法
+                    String result = response.body().string();
+                    Log.i(TAG, result);
+                    //关闭body
+                    response.body().close();
 
-                JSONArray jsonArray = JSONArray.parseArray(result);
+                    JSONArray jsonArray = JSONArray.parseArray(result);
 
-                final UpdateBean updateBean = JSON.parseObject(jsonArray.get(0).toString(), UpdateBean.class);
-                if (BuildConfig.VERSION_CODE < updateBean.getApkData().getVersionCode()) {
-                    ToastUtils.showShort("发现新版本，开始下载咯(*^▽^*)");
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            DownloadManager manager = DownloadManager.getInstance(MainActivity.this);
-                            manager.setApkName("appupdate.apk")
-                                    .setApkUrl(Constants.UPDATE_URL_BASE + updateBean.getApkData().getOutputFile())
-                                    .setSmallIcon(R.mipmap.app_update)
-                                    //可设置，可不设置
-                                    //.setConfiguration(configuration)
-                                    .download();
-                        }
-                    }).start();
+                    final UpdateBean updateBean = JSON.parseObject(jsonArray.get(0).toString(), UpdateBean.class);
+                    if (BuildConfig.VERSION_CODE < updateBean.getApkData().getVersionCode()) {
+                        ToastUtils.showShort("发现新版本，开始下载咯(*^▽^*)");
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                DownloadManager manager = DownloadManager.getInstance(MainActivity.this);
+                                manager.setApkName("appupdate.apk")
+                                        .setApkUrl(Constants.UPDATE_URL_BASE + updateBean.getApkData().getOutputFile())
+                                        .setSmallIcon(R.mipmap.app_update)
+                                        //可设置，可不设置
+                                        //.setConfiguration(configuration)
+                                        .download();
+                            }
+                        }).start();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Log.e(TAG, "onResponse: 更新异常 ", e);
                 }
             }
         });
