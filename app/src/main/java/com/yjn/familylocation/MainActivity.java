@@ -12,7 +12,6 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -27,14 +26,17 @@ import com.amap.api.maps.model.LatLng;
 import com.amap.api.maps.model.Marker;
 import com.amap.api.maps.model.MarkerOptions;
 import com.amap.api.maps.model.MyLocationStyle;
+import com.azhon.appupdate.config.UpdateConfiguration;
 import com.azhon.appupdate.manager.DownloadManager;
-import com.tbruyelle.rxpermissions2.RxPermissions;
+import com.yanzhenjie.permission.AndPermission;
 import com.yjn.familylocation.bean.Constants;
 import com.yjn.familylocation.bean.LatLonBean;
 import com.yjn.familylocation.bean.UpdateBean;
 import com.yjn.familylocation.event.RequestEvent;
 import com.yjn.familylocation.service.BackLocationService;
 import com.yjn.familylocation.service.BackPushService;
+import com.yjn.familylocation.ui.AboutActivity;
+import com.yjn.familylocation.ui.SettingActivity;
 import com.yjn.familylocation.util.GDLocationUtil;
 import com.yjn.familylocation.util.SPUtils;
 import com.yjn.familylocation.util.ToastUtils;
@@ -46,8 +48,6 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.IOException;
 
-import io.reactivex.Observer;
-import io.reactivex.disposables.Disposable;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
@@ -73,7 +73,6 @@ public class MainActivity extends AppCompatActivity {
     private boolean followMove;
     private EditText targetId;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -87,45 +86,28 @@ public class MainActivity extends AppCompatActivity {
         initMapView(savedInstanceState);
 
         // TODO: 2019/9/12 动态授权之后初始化下面的所有逻辑
-        new RxPermissions(this).request(
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.READ_PHONE_STATE)
-                .subscribe(new Observer<Boolean>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
 
+        AndPermission.with(this)
+                .runtime()
+                .permission(
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        Manifest.permission.READ_PHONE_STATE)
+                .onGranted(permissions -> {
+                    // 定位工具初始化
+                    GDLocationUtil.init(MainActivity.this);
+                    if (!Utils.isServiceRunning(BackPushService.class.getName())) {
+                        startService(new Intent(MainActivity.this, BackPushService.class));
                     }
 
-                    @Override
-                    public void onNext(Boolean aBoolean) {
-                        if (!aBoolean) {
-                            ToastUtils.showShort("权限不足，无法使用！");
-                        } else {
-                            // 定位工具初始化
-                            GDLocationUtil.init(MainActivity.this);
-                            if (!Utils.isServiceRunning(BackPushService.class.getName())) {
-                                startService(new Intent(MainActivity.this, BackPushService.class));
-                            }
-
-                            if (!Utils.isServiceRunning(BackLocationService.class.getName())) {
-                                startService(new Intent(MainActivity.this, BackLocationService.class));
-                            }
-
-                            checkUpdate();
-                        }
+                    if (!Utils.isServiceRunning(BackLocationService.class.getName())) {
+                        startService(new Intent(MainActivity.this, BackLocationService.class));
                     }
-
-                    @Override
-                    public void onError(Throwable e) {
-
-                    }
-
-                    @Override
-                    public void onComplete() {
-
-                    }
-                });
+                    //升级检查
+                    checkUpdate();
+                })
+                .onDenied(permissions -> ToastUtils.showShort("权限不足，无法使用！"))
+                .start();
     }
 
     @Override
@@ -133,6 +115,9 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.about_menu:
                 startActivity(new Intent(this, AboutActivity.class));
+                break;
+            case R.id.setting_menu:
+                startActivity(new Intent(this, SettingActivity.class));
                 break;
             default:
                 break;
@@ -144,56 +129,6 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
         return true;
-    }
-
-    /**
-     * 检查应用升级
-     */
-    private void checkUpdate() {
-        OkHttpClient okHttpClient = new OkHttpClient();
-        Request request = new Request.Builder().url(Constants.UPDATE_URL_CHECK).build();
-        //enqueue就是将此次的call请求加入异步请求队列，会开启新的线程执行，并将执行的结果通过Callback接口回调的形式返回。
-        okHttpClient.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                //请求失败的回调方法
-                Log.e(TAG, "onFailure: ", e);
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                try {
-                    //请求成功的回调方法
-                    String result = response.body().string();
-                    Log.i(TAG, result);
-                    //关闭body
-                    response.body().close();
-
-                    JSONArray jsonArray = JSONArray.parseArray(result);
-
-                    final UpdateBean updateBean = JSON.parseObject(jsonArray.get(0).toString(), UpdateBean.class);
-                    if (BuildConfig.VERSION_CODE < updateBean.getApkData().getVersionCode()) {
-                        ToastUtils.showShort("发现新版本，开始下载咯(*^▽^*)");
-                        new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                DownloadManager manager = DownloadManager.getInstance(MainActivity.this);
-                                manager.setApkName("appupdate.apk")
-                                        .setApkUrl(Constants.UPDATE_URL_BASE + updateBean.getApkData().getOutputFile())
-                                        .setSmallIcon(R.mipmap.app_update)
-                                        //可设置，可不设置
-                                        //.setConfiguration(configuration)
-                                        .download();
-                            }
-                        }).start();
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    Log.e(TAG, "onResponse: 更新异常 ", e);
-                }
-            }
-        });
-
     }
 
     private void initMapView(Bundle savedInstanceState) {
@@ -282,6 +217,88 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
+     * 检查应用升级
+     */
+    private void checkUpdate() {
+        OkHttpClient okHttpClient = new OkHttpClient();
+        Request request = new Request.Builder().url(Constants.UPDATE_URL_CHECK).build();
+        //enqueue就是将此次的call请求加入异步请求队列，会开启新的线程执行，并将执行的结果通过Callback接口回调的形式返回。
+        okHttpClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                //请求失败的回调方法
+                Log.e(TAG, "onFailure: ", e);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                try {
+                    //请求成功的回调方法
+                    String result = response.body().string();
+                    Log.i(TAG, result);
+                    //关闭body
+                    response.body().close();
+
+                    JSONArray jsonArray = JSONArray.parseArray(result);
+
+                    final UpdateBean updateBean = JSON.parseObject(jsonArray.get(0).toString(), UpdateBean.class);
+                    if (BuildConfig.VERSION_CODE < updateBean.getApkData().getVersionCode()) {
+                        runOnUiThread(() -> startUpdate(updateBean));
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Log.e(TAG, "onResponse: 更新异常 ", e);
+                }
+            }
+        });
+
+    }
+
+    private void startUpdate(UpdateBean updateBean) {
+        /*
+         * 整个库允许配置的内容
+         * 非必选
+         */
+        UpdateConfiguration configuration = new UpdateConfiguration()
+                //输出错误日志
+                .setEnableLog(true)
+                //设置自定义的下载
+                //.setHttpManager()
+                //下载完成自动跳动安装页面
+                .setJumpInstallPage(true)
+                //设置对话框背景图片 (图片规范参照demo中的示例图)
+                //.setDialogImage(R.drawable.ic_dialog)
+                //设置按钮的颜色
+                //.setDialogButtonColor(Color.parseColor("#E743DA"))
+                //设置按钮的文字颜色
+                .setDialogButtonTextColor(Color.WHITE)
+                //设置是否显示通知栏进度
+                .setShowNotification(true)
+                //设置是否提示后台下载toast
+                .setShowBgdToast(false)
+                //设置强制更新
+                .setForcedUpgrade(false)
+                /*//设置对话框按钮的点击监听
+                .setButtonClickListener(this)
+                //设置下载过程的监听
+                .setOnDownloadListener(this)*/;
+
+        DownloadManager manager = DownloadManager.getInstance(MainActivity.this);
+        manager.setApkName("family_keep.apk")
+                .setApkUrl(Constants.UPDATE_URL_BASE + updateBean.getApkData().getOutputFile())
+                .setSmallIcon(R.mipmap.app_update)
+                .setShowNewerToast(true)
+                .setConfiguration(configuration)
+                //.setDownloadPath(Environment.getExternalStorageDirectory() + "/AppUpdate")
+                .setApkVersionCode(updateBean.getApkData().getVersionCode())
+                .setApkVersionName(updateBean.getApkData().getVersionName())
+                .setApkSize(manager.getApkSize())
+                .setAuthorities(getPackageName())
+                .setApkDescription("修复bug")
+                .download();
+    }
+
+    /**
      * 地图显示目标设备的位置
      */
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -310,11 +327,6 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         //在activity执行onResume时执行mMapView.onResume ()，重新绘制加载地图
         mMapView.onResume();
-
-        String installationId = SPUtils.getInstance(Constants.SP_NAME).getString(Constants.INSTALLATIONID_SP,
-                "");
-        TextView msg = findViewById(R.id.msg_tv);
-        msg.setText("欢迎使用家人守护！\n\n" + "本机installationid:\n\n" + installationId);
     }
 
     @Override

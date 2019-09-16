@@ -61,7 +61,7 @@ public class BackLocationService extends Service {
             requestInstallationId = event.getRequestInstallationId();
 
             // 获取当前位置，无论是否定位过，重新进行定位
-            GDLocationUtil.getCurrentLocation(new GDLocationUtil.MyLocationListener() {
+            GDLocationUtil.getLocation(new GDLocationUtil.MyLocationListener() {
                 @Override
                 public void result(AMapLocation location) {
                     //针对location进行相关操作，如location.getCity()，无需验证location是否为null;

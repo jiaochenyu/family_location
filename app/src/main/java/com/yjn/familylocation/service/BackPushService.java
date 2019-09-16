@@ -25,6 +25,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import cn.leancloud.AVInstallation;
 import cn.leancloud.AVObject;
 import cn.leancloud.AVPush;
+import cn.leancloud.AVQuery;
 import cn.leancloud.push.PushService;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
@@ -75,13 +76,10 @@ public class BackPushService extends Service {
 
     /**
      * 初始化Leancloud消息推送
+     * https://leancloud.cn/docs/android_push_guide.html#hash1103064005
      */
     private void init() {
-        // 设置默认打开的 Activity(点击通知栏消息跳转)
-        PushService.setDefaultPushCallback(this, MainActivity.class);
-        // 订阅频道，当该频道消息到来的时候，打开对应的 Activity
-        PushService.subscribe(this, CHANNEL_ID, MainActivity.class);
-
+        AVInstallation.getCurrentInstallation().saveInBackground();
         AVInstallation.getCurrentInstallation().saveInBackground().subscribe(new Observer<AVObject>() {
             @Override
             public void onSubscribe(Disposable d) {
@@ -106,29 +104,33 @@ public class BackPushService extends Service {
             public void onComplete() {
             }
         });
+
+        // 启动推送服务
+        // 设置默认打开的 Activity(点击通知栏消息跳转)
+        PushService.setDefaultPushCallback(this, MainActivity.class);
+        // 订阅频道，当该频道消息到来的时候，打开对应的 Activity
+        // 参数依次为：当前的 context、频道名称、回调对象的类
+        PushService.subscribe(this, CHANNEL_ID, MainActivity.class);
     }
 
     /**
      * 单对单发送（通知栏展示setMessage）通过targetDeviceId
+     * 类似私信的功能
      */
     private void sendOne(String msg, String targetInstallationId) {
-        AVPush push = new AVPush();
-        // 设置频道
-        push.setChannel(CHANNEL_ID);
-        // 设置消息(setData可以自定义广播中接收，setMessage默认状态栏显示)
-        push.setMessage(msg);
-        // 设置查询条件，只推送给自己，不要打扰别人啦，这是 demo
-        push.setQuery(AVInstallation.getQuery().whereEqualTo("installationId",
-                targetInstallationId));
 
-        // 推送
-        push.sendInBackground().subscribe(new Observer<JSONObject>() {
+        AVQuery pushQuery = AVInstallation.getQuery();
+        // 假设 targetInstallationId 是保存在用户表里的 installationId，
+        // 可以在应用启动的时候获取并保存到用户表
+        pushQuery.whereEqualTo("installationId", targetInstallationId);
+        AVPush.sendMessageInBackground(msg, pushQuery).subscribe(new Observer() {
             @Override
             public void onSubscribe(Disposable d) {
+
             }
 
             @Override
-            public void onNext(JSONObject jsonObject) {
+            public void onNext(Object object) {
                 ToastUtils.showShort("消息发送成功");
             }
 
@@ -139,9 +141,9 @@ public class BackPushService extends Service {
 
             @Override
             public void onComplete() {
+
             }
         });
-
     }
 
     /**
@@ -153,11 +155,7 @@ public class BackPushService extends Service {
             return;
         }
         AVPush push = new AVPush();
-
-        /*AVQuery<AVInstallation> query = AVInstallation.getQuery();
-        //查询群组下的installationId
-        query.whereEqualTo("installationId", targetInstallationId);
-        push.setQuery(query);*/
+        //如果不设置setQuery，那么就是发送给CHANNEL_ID组下的所有人
         push.setQuery(AVInstallation.getQuery().whereEqualTo("installationId",
                 targetInstallationId));
         push.setChannel(CHANNEL_ID);
@@ -166,7 +164,7 @@ public class BackPushService extends Service {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("action", "com.msgpush.action");
         jsonObject.put("alert", msg);
-//        jsonObject.put("alert", "哈哈哈");
+        //jsonObject.put("alert", "哈哈哈");
         //透传不显示通知栏 https://leancloud.cn/docs/push_guide.html#hash79355699
         jsonObject.put("silent", true);
 

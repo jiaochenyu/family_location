@@ -7,23 +7,14 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
-    <TextView
-        android:id="@+id/msg_tv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:gravity="center_horizontal"
-        android:text="欢迎使用家人守护！"
-        android:textIsSelectable="true" />
-
-    <!--    4655703e49be6678f949396ccb8558f5  新的-->
     <EditText
         android:id="@+id/target_installid"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
         android:hint="请输入目标设备installationId"
         android:minWidth="100dp"
-        android:text="be655fcfc2e0fe53f6a06b3de43e7a91" />
+        android:text="be655fcfc2e0fe53f6a06b3de43e7a911" />
 
     <Button
         android:id="@+id/location_btn"

@@ -10,7 +10,7 @@ import android.util.Log;
 import androidx.core.app.NotificationCompat;
 
 import com.alibaba.fastjson.JSON;
-import com.yjn.familylocation.MsgActivity;
+import com.yjn.familylocation.ui.MsgActivity;
 import com.yjn.familylocation.R;
 import com.yjn.familylocation.bean.LatLonBean;
 import com.yjn.familylocation.bean.MsgBean;

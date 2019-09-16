@@ -33,7 +33,7 @@ public class GDLocationUtil {
         // 设置定位模式为高精度模式，Battery_Saving为低功耗模式，Device_Sensors是仅设备模式
         mLocationOption.setLocationMode(AMapLocationMode.Hight_Accuracy);
         // 设置定位间隔,单位毫秒,默认为2000ms
-        mLocationOption.setInterval(2000);
+        mLocationOption.setInterval(1000);
 
         //获取一次定位结果
         mLocationOption.setOnceLocation(true);
@@ -63,6 +63,8 @@ public class GDLocationUtil {
      * @param listener
      * @Title: getLocation
      * @Description: 获取位置，如果之前获取过定位结果，则不会重复获取
+     * 通常来说单独的定位功能是用于确定用户所在城市、位置，仅作显示并通过上传位置信息对用户提供相应周边服务用，
+     * 因此无需重复定位。重复定位耗电量较多且大多无实际作用，因此此处只做单次定位的处理。
      */
     public static void getLocation(MyLocationListener listener) {
         if (sLocation == null) {

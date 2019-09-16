@@ -1,7 +1,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".AboutActivity">
+    tools:context=".ui.AboutActivity">
+    <item
+        android:id="@+id/setting_menu"
+        android:orderInCategory="0"
+        android:title="设置"
+        app:showAsAction="never" />
     <item
         android:id="@+id/about_menu"
         android:orderInCategory="0"

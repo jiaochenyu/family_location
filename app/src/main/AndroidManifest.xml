@@ -46,10 +46,15 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MsgActivity"
+            android:name=".ui.MsgActivity"
             android:screenOrientation="portrait" />
-        <activity android:name=".AboutActivity"
-            android:theme="@style/AppTheme.About"/>
+        <activity
+            android:name=".ui.AboutActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.About" />
+        <activity
+            android:name=".ui.SettingActivity"
+            android:screenOrientation="portrait" />
 
         <service android:name=".service.BackPushService" />
         <service android:name=".service.BackLocationService" />
@@ -96,6 +101,7 @@
         </receiver>
         <!--###############leancloud###############-->
 
+        <!--###############appupdate###############-->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}"
