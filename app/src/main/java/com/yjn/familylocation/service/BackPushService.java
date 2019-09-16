@@ -25,7 +25,6 @@ import org.greenrobot.eventbus.ThreadMode;
 import cn.leancloud.AVInstallation;
 import cn.leancloud.AVObject;
 import cn.leancloud.AVPush;
-import cn.leancloud.AVQuery;
 import cn.leancloud.push.PushService;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
@@ -46,7 +45,7 @@ public class BackPushService extends Service {
 
     private SPUtils spUtils;
 
-    private boolean showToast;
+    private boolean sendMsg;
 
     @Nullable
     @Override
@@ -155,10 +154,12 @@ public class BackPushService extends Service {
         }
         AVPush push = new AVPush();
 
-        AVQuery<AVInstallation> query = AVInstallation.getQuery();
+        /*AVQuery<AVInstallation> query = AVInstallation.getQuery();
         //查询群组下的installationId
         query.whereEqualTo("installationId", targetInstallationId);
-        push.setQuery(query);
+        push.setQuery(query);*/
+        push.setQuery(AVInstallation.getQuery().whereEqualTo("installationId",
+                targetInstallationId));
         push.setChannel(CHANNEL_ID);
 
         // 设置消息
@@ -179,18 +180,12 @@ public class BackPushService extends Service {
 
             @Override
             public void onNext(JSONObject jsonObject) {
-                if (showToast) {
-                    ToastUtils.showShort("消息发送成功");
-                    showToast = false;
-                }
+                ToastUtils.showShort(sendMsg ? "指令发送成功" : "定位发送成功");
             }
 
             @Override
             public void onError(Throwable e) {
-                if (showToast) {
-                    ToastUtils.showShort("消息发送失败: " + e.getMessage());
-                    showToast = false;
-                }
+                ToastUtils.showShort("消息发送失败: " + e.getMessage());
             }
 
             @Override
@@ -216,7 +211,7 @@ public class BackPushService extends Service {
             //目标方
             String targetInstallationId = event.getRequestInstallationId();
 
-            showToast = false;
+            sendMsg = false;
             sendGroup(JSON.toJSONString(msgBean), targetInstallationId);
         }
     }
@@ -245,7 +240,7 @@ public class BackPushService extends Service {
         //目标方
         msgBean.setTargetInstallationId(targetInstallationId);
 
-        showToast = true;
+        sendMsg = true;
         sendGroup(JSON.toJSONString(msgBean), targetInstallationId);
 //        sendGroup(new Gson().toJson(msgBean), targetInstallationId);
     }

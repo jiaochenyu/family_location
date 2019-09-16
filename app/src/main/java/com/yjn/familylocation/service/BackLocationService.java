@@ -10,6 +10,7 @@ import androidx.annotation.Nullable;
 import com.amap.api.location.AMapLocation;
 import com.yjn.familylocation.event.GetLocationEvent;
 import com.yjn.familylocation.util.GDLocationUtil;
+import com.yjn.familylocation.util.ToastUtils;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -56,6 +57,7 @@ public class BackLocationService extends Service {
     @Subscribe(threadMode = ThreadMode.BACKGROUND)
     public void getCurrentLocation(GetLocationEvent event) {
         if (event.getType() == GetLocationEvent.Type.定位) {
+            ToastUtils.showShort("开始定位");
             requestInstallationId = event.getRequestInstallationId();
 
             // 获取当前位置，无论是否定位过，重新进行定位

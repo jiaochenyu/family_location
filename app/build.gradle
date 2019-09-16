@@ -89,4 +89,8 @@ dependencies {
 
     //应用升级
     implementation 'com.azhon:appupdate:2.4.0'
+
+    // about-page
+    implementation 'com.drakeet.about:about:2.3.1'
+    implementation 'com.drakeet.multitype:multitype:4.0.0'
 }

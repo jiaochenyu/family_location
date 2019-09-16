@@ -48,6 +48,8 @@
         <activity
             android:name=".MsgActivity"
             android:screenOrientation="portrait" />
+        <activity android:name=".AboutActivity"
+            android:theme="@style/AppTheme.About"/>
 
         <service android:name=".service.BackPushService" />
         <service android:name=".service.BackLocationService" />
