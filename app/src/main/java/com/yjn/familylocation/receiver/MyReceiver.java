@@ -10,11 +10,14 @@ import android.util.Log;
 import androidx.core.app.NotificationCompat;
 
 import com.alibaba.fastjson.JSON;
-import com.yjn.familylocation.ui.MsgActivity;
 import com.yjn.familylocation.R;
 import com.yjn.familylocation.bean.LatLonBean;
 import com.yjn.familylocation.bean.MsgBean;
 import com.yjn.familylocation.event.GetLocationEvent;
+import com.yjn.familylocation.service.BackLocationService;
+import com.yjn.familylocation.service.BackPushService;
+import com.yjn.familylocation.ui.MsgActivity;
+import com.yjn.familylocation.util.Utils;
 
 import org.greenrobot.eventbus.EventBus;
 import org.json.JSONObject;
@@ -34,6 +37,15 @@ public class MyReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        //启动2个后台服务
+        if (!Utils.isServiceRunning(BackPushService.class.getName())) {
+            Utils.getApp().startService(new Intent(context, BackPushService.class));
+        }
+
+        if (!Utils.isServiceRunning(BackLocationService.class.getName())) {
+            Utils.getApp().startService(new Intent(context, BackLocationService.class));
+        }
+
         try {
             if (intent.getAction().equals("com.msgpush.action")) {
                 // 获取推送消息数据

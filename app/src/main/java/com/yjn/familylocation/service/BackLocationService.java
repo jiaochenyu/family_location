@@ -44,11 +44,13 @@ public class BackLocationService extends Service {
     public void onDestroy() {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
+        GDLocationUtil.destroy();
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
+        Log.i(TAG, "onCreate: 定位服务启动！");
         EventBus.getDefault().register(this);
         // 定位工具初始化
         GDLocationUtil.init(this);

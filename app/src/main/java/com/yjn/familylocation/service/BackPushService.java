@@ -2,6 +2,7 @@ package com.yjn.familylocation.service;
 
 import android.app.Service;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.IBinder;
 import android.text.TextUtils;
 import android.util.Log;
@@ -15,6 +16,7 @@ import com.yjn.familylocation.bean.Constants;
 import com.yjn.familylocation.bean.MsgBean;
 import com.yjn.familylocation.event.GetLocationEvent;
 import com.yjn.familylocation.event.RequestEvent;
+import com.yjn.familylocation.receiver.ScreenBroadcastReceiver;
 import com.yjn.familylocation.util.SPUtils;
 import com.yjn.familylocation.util.ToastUtils;
 
@@ -43,10 +45,9 @@ public class BackPushService extends Service {
     //群组id
     public static final String CHANNEL_ID = "zhuzhuyang";
     private String installationId;
-
     private SPUtils spUtils;
-
     private boolean sendMsg;
+    private ScreenBroadcastReceiver screenBroadcastReceiver;
 
     @Nullable
     @Override
@@ -63,15 +64,26 @@ public class BackPushService extends Service {
     public void onDestroy() {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
+        if (screenBroadcastReceiver != null) {
+            unregisterReceiver(screenBroadcastReceiver);
+        }
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
+        Log.i(TAG, "onCreate: 消息推送服务启动！");
         EventBus.getDefault().register(this);
         spUtils = SPUtils.getInstance(Constants.SP_NAME);
 
         init();
+
+        screenBroadcastReceiver = new ScreenBroadcastReceiver();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_SCREEN_OFF);
+        filter.addAction(Intent.ACTION_SCREEN_ON);
+        filter.addAction(Intent.ACTION_USER_PRESENT);
+        registerReceiver(screenBroadcastReceiver, filter);
     }
 
     /**

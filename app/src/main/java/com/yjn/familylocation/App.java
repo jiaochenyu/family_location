@@ -22,7 +22,7 @@ public class App extends Application {
         super.onCreate();
         //开启调试日志
         //AVOSCloud.setLogLevel(BuildConfig.DEBUG ? AVLogger.Level.DEBUG : AVLogger.Level.OFF);
-        AVOSCloud.setLogLevel(AVLogger.Level.DEBUG);
+        AVOSCloud.setLogLevel(AVLogger.Level.OFF);
         // 初始化应用信息
         AVOSCloud.initialize(
                 this,

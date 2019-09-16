@@ -26,10 +26,12 @@ public class GDLocationUtil {
      * @Description: 初始化地图导航，在Application onCreate中调用，只需调用一次
      */
     public static void init(Context context) {
-        // 声明mLocationOption对象
-        mlocationClient = new AMapLocationClient(context);
-        // 初始化定位参数
-        mLocationOption = new AMapLocationClientOption();
+        if (mlocationClient==null) {
+            // 声明mLocationOption对象
+            mlocationClient = new AMapLocationClient(context);
+            // 初始化定位参数
+            mLocationOption = new AMapLocationClientOption();
+        }
         // 设置定位模式为高精度模式，Battery_Saving为低功耗模式，Device_Sensors是仅设备模式
         mLocationOption.setLocationMode(AMapLocationMode.Hight_Accuracy);
         // 设置定位间隔,单位毫秒,默认为2000ms
@@ -108,6 +110,8 @@ public class GDLocationUtil {
      * @Description: 销毁定位，必须在退出程序时调用，否则定位会发生异常
      */
     public static void destroy() {
-        mlocationClient.onDestroy();
+        if (mlocationClient != null) {
+            mlocationClient.onDestroy();
+        }
     }
 }

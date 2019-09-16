@@ -244,6 +244,8 @@ public class MainActivity extends AppCompatActivity {
                     final UpdateBean updateBean = JSON.parseObject(jsonArray.get(0).toString(), UpdateBean.class);
                     if (BuildConfig.VERSION_CODE < updateBean.getApkData().getVersionCode()) {
                         runOnUiThread(() -> startUpdate(updateBean));
+                    }else {
+                        Log.i(TAG, "onResponse: 应用已是最新版");
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
