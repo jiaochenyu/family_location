@@ -8,6 +8,7 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 
 import com.amap.api.location.AMapLocation;
+import com.yjn.familylocation.MainActivity;
 import com.yjn.familylocation.event.GetLocationEvent;
 import com.yjn.familylocation.util.GDLocationUtil;
 import com.yjn.familylocation.util.ToastUtils;
@@ -49,6 +50,8 @@ public class BackLocationService extends Service {
     public void onCreate() {
         super.onCreate();
         EventBus.getDefault().register(this);
+        // 定位工具初始化
+        GDLocationUtil.init(this);
     }
 
     /**
