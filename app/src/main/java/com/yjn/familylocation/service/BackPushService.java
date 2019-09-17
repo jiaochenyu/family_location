@@ -5,7 +5,6 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.ComponentName;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.BitmapFactory;
@@ -19,6 +18,7 @@ import androidx.core.app.NotificationCompat;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.yjn.familylocation.App;
 import com.yjn.familylocation.MainActivity;
 import com.yjn.familylocation.R;
 import com.yjn.familylocation.bean.Constants;
@@ -134,6 +134,8 @@ public class BackPushService extends Service {
      * https://leancloud.cn/docs/android_push_guide.html#hash1103064005
      */
     private void init() {
+        App.getInstance().init();
+
         AVInstallation.getCurrentInstallation().saveInBackground();
         AVInstallation.getCurrentInstallation().saveInBackground().subscribe(new Observer<AVObject>() {
             @Override

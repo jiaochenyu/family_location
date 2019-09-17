@@ -28,6 +28,9 @@ public class GDLocationUtil {
      * @Description: 初始化地图导航，在Application onCreate中调用，只需调用一次
      */
     public static void init(Context context) {
+        //初始化之前先destroy
+        GDLocationUtil.destroy();
+
         if (mlocationClient == null) {
             // 声明mLocationOption对象
             mlocationClient = new AMapLocationClient(context);
@@ -105,7 +108,7 @@ public class GDLocationUtil {
                     if (end - lastLocateTime > 500) {
                         lastLocateTime = end;
                         listener.result(location);
-                    }else {
+                    } else {
                         Log.i(TAG, "onLocationChanged: 返回定位不要太频繁");
                     }
 
@@ -126,6 +129,7 @@ public class GDLocationUtil {
     public static void destroy() {
         if (mlocationClient != null) {
             mlocationClient.onDestroy();
+            mlocationClient = null;
         }
     }
 }

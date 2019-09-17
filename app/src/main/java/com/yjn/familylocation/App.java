@@ -17,9 +17,20 @@ import cn.leancloud.push.PushService;
 public class App extends Application {
     public static final String TAG = App.class.getSimpleName();
 
+    private static App instance;
+
+    public static App getInstance() {
+        return instance;
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
+        instance = this;
+        init();
+    }
+
+    public void init() {
         //开启调试日志
         //AVOSCloud.setLogLevel(BuildConfig.DEBUG ? AVLogger.Level.DEBUG : AVLogger.Level.OFF);
         AVOSCloud.setLogLevel(AVLogger.Level.OFF);

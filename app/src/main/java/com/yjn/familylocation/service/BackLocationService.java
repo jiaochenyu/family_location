@@ -1,14 +1,13 @@
 package com.yjn.familylocation.service;
 
 import android.app.Service;
-import android.app.TaskStackBuilder;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
 
-import com.amap.api.location.AMapLocation;
+import com.yjn.familylocation.App;
 import com.yjn.familylocation.event.GetLocationEvent;
 import com.yjn.familylocation.util.GDLocationUtil;
 import com.yjn.familylocation.util.ToastUtils;
@@ -34,7 +33,6 @@ public class BackLocationService extends Service {
     private Timer timer;
     //10分钟
     private int period = 10 * 60 * 1000;
-//    private int period = 10   * 1000;
 
     @Nullable
     @Override
@@ -52,7 +50,7 @@ public class BackLocationService extends Service {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
         GDLocationUtil.destroy();
-        if(timer != null){
+        if (timer != null) {
             timer.purge();
             timer.cancel();
             timer = null;
@@ -75,18 +73,12 @@ public class BackLocationService extends Service {
      * todo 替换成小米推送后这个功能可以取消掉,leadcloud的websocket不稳定经常挂掉
      */
     private void watchdog() {
-        Intent serviceIntent = new Intent(getApplicationContext(), BackPushService.class);
         timer = new Timer();
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                //先关闭，再启动
-                try {
-                    stopService(serviceIntent);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                startService(serviceIntent);
+                Log.i(TAG, "run: 重新初始化推送");
+                App.getInstance().init();
             }
         }, period, period);
     }
