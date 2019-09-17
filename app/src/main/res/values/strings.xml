@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">家人守护</string>
+    <string name="card_content">👪 定位亲人位置，守护亲人！\n\nMumuXi 是查阅技术文章与美图的一款应用，全新版本使用 Flutter 跨平台框架开发，有兴趣的小伙伴可以点个 star 呦：\n\nhttps://android.myapp.com/myapp/detail.htm?apkName=com.yang.bruce.mumuxi</string>
 </resources>
