@@ -284,12 +284,12 @@ public class MainActivity extends AppCompatActivity {
                 //设置强制更新
                 .setForcedUpgrade(false)
                 //设置对话框按钮的点击监听
-                .setButtonClickListener(id -> ToastUtils.showShort("开始下载"))
+                //.setButtonClickListener(id -> ToastUtils.showShort("开始下载"))
                 //设置下载过程的监听
                 .setOnDownloadListener(new OnDownloadListener() {
                     @Override
                     public void start() {
-
+                        ToastUtils.showShort("开始下载");
                     }
 
                     @Override
@@ -338,8 +338,12 @@ public class MainActivity extends AppCompatActivity {
         if (followMove) {
             LatLng latLng = new LatLng(
                     latLonBean.getLatitude(), latLonBean.getLongitude());
-            aMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
 
+            //设置缩放比例，值越大越详细
+            aMap.moveCamera(CameraUpdateFactory.zoomTo(18));
+            //地图中心移动到指定坐标
+            aMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+            //坐标处标点
             addMarkersToMap(latLng);
         }
     }

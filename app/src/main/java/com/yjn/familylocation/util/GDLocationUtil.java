@@ -1,6 +1,7 @@
 package com.yjn.familylocation.util;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationClient;
@@ -16,6 +17,7 @@ import com.amap.api.location.AMapLocationListener;
  * url: https://segmentfault.com/a/1190000008048506
  */
 public class GDLocationUtil {
+    public static final String TAG = GDLocationUtil.class.getSimpleName();
     private static AMapLocationClient mlocationClient;
     public static AMapLocationClientOption mLocationOption = null;
     public static AMapLocation sLocation = null;
@@ -31,7 +33,7 @@ public class GDLocationUtil {
             mlocationClient = new AMapLocationClient(context);
             // 初始化定位参数
             mLocationOption = new AMapLocationClientOption();
-        }else {
+        } else {
             mlocationClient.stopLocation();
         }
         // 设置定位模式为高精度模式，Battery_Saving为低功耗模式，Device_Sensors是仅设备模式
@@ -78,6 +80,8 @@ public class GDLocationUtil {
         }
     }
 
+    private static long lastLocateTime;
+
     /**
      * @param listener
      * @Title: getCurrentLocation
@@ -96,7 +100,15 @@ public class GDLocationUtil {
                     //定位成功，取消定位
                     mlocationClient.stopLocation();
                     sLocation = location;
-                    listener.result(location);
+
+                    long end = System.currentTimeMillis();
+                    if (end - lastLocateTime > 500) {
+                        lastLocateTime = end;
+                        listener.result(location);
+                    }else {
+                        Log.i(TAG, "onLocationChanged: 返回定位不要太频繁");
+                    }
+
                 } else {
                     //获取定位数据失败
                     ToastUtils.showShort("定位失败");

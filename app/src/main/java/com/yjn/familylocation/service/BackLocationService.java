@@ -101,24 +101,21 @@ public class BackLocationService extends Service {
             requestInstallationId = event.getRequestInstallationId();
 
             // 获取当前位置，无论是否定位过，重新进行定位
-            GDLocationUtil.getLocation(new GDLocationUtil.MyLocationListener() {
-                @Override
-                public void result(AMapLocation location) {
-                    //针对location进行相关操作，如location.getCity()，无需验证location是否为null;
-                    //定位成功回调信息，设置相关消息. 纬度+经度
-                    if (location.getLatitude() == 0.0 && location.getLongitude() == 0.0) {
-                        Log.e(TAG, "result: 定位失败 errorcode = " + location.getErrorCode()
-                                + " errorinfo = " + location.getErrorInfo());
-                        return;
-                    }
-                    String lanLon = location.getLatitude() + "," + location.getLongitude();
-                    Log.i(TAG, "result: lanLon = " + lanLon);
-                    // TODO: 2019/9/12 定位成功后返回坐标
-                    EventBus.getDefault().post(new GetLocationEvent(
-                            GetLocationEvent.Type.返回定位,
-                            requestInstallationId,
-                            lanLon));
+            GDLocationUtil.getCurrentLocation(location -> {
+                //针对location进行相关操作，如location.getCity()，无需验证location是否为null;
+                //定位成功回调信息，设置相关消息. 纬度+经度
+                if (location.getLatitude() == 0.0 && location.getLongitude() == 0.0) {
+                    Log.e(TAG, "result: 定位失败 errorcode = " + location.getErrorCode()
+                            + " errorinfo = " + location.getErrorInfo());
+                    return;
                 }
+                String lanLon = location.getLatitude() + "," + location.getLongitude();
+                Log.i(TAG, "result: lanLon = " + lanLon);
+                // TODO: 2019/9/12 定位成功后返回坐标
+                EventBus.getDefault().post(new GetLocationEvent(
+                        GetLocationEvent.Type.返回定位,
+                        requestInstallationId,
+                        lanLon));
             });
         }
     }
