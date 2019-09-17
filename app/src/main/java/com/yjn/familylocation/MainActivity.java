@@ -79,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Log.i(TAG, "onCreate: MainActivity嘿");
         EventBus.getDefault().register(this);
         targetId = findViewById(R.id.target_installid);
         targetId.setText(SPUtils.getInstance(Constants.SP_NAME).getString(Constants.TARGET_INSTALLATIONID_SP,

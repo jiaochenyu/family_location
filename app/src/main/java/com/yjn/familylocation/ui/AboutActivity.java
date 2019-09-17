@@ -1,6 +1,7 @@
 package com.yjn.familylocation.ui;
 
 import android.annotation.SuppressLint;
+import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -12,6 +13,7 @@ import com.drakeet.about.Category;
 import com.drakeet.about.Contributor;
 import com.drakeet.about.License;
 import com.drakeet.about.Recommendation;
+import com.drakeet.about.provided.GlideImageLoader;
 import com.yjn.familylocation.BuildConfig;
 import com.yjn.familylocation.R;
 
@@ -29,6 +31,12 @@ import java.util.List;
 @SuppressLint("SetTextI18n")
 public class AboutActivity extends AbsAboutActivity {
     @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setImageLoader(new GlideImageLoader());
+    }
+
+    @Override
     protected void onCreateHeader(@NonNull ImageView icon, @NonNull TextView slogan, @NonNull TextView version) {
         icon.setImageResource(R.mipmap.ic_logo);
         slogan.setText(getString(R.string.app_name));
@@ -45,22 +53,32 @@ public class AboutActivity extends AbsAboutActivity {
 
         items.add(new Category("我独立开发的应用"));
         items.add(new Recommendation(
+                0, "family_location",
+                "https://raw.githubusercontent.com/yangxiaoge/family_location/master/app/src/main/res/mipmap-xxhdpi/ic_logo.png",
+                "com.yjn.familylocation",
+                "\uD83D\uDC6A 定位亲人位置，守护亲人！",
+                "https://github.com/yangxiaoge/family_location",
+                "2019-09-12 14:49:18",
+                "2019-9-17 10:08:32",
+                13.7,
+                false
+        ));
+        items.add(new Recommendation(
                 0, "MumuXi",
                 "https://raw.githubusercontent.com/yangxiaoge/MumuXi/master/app/src/main/res/mipmap-hdpi/zz.png",
                 "com.yang.bruce.mumuxi",
                 "原生开发，技术文档学习。",
-                "https://android.myapp.com/myapp/detail.htm?apkName=com.yang.bruce.mumuxi",
+                "https://github.com/yangxiaoge/MumuXi",
                 "2016-6-27 19:38:04",
                 "2019-9-17 09:34:10",
                 6,
                 false
         ));
-
         items.add(new Recommendation(
                 0, "MumuXi_flutter",
                 "https://raw.githubusercontent.com/yangxiaoge/wanandroid_flutter/master/assets/images/zz.png",
                 "com.yang.bruce.mumuxi",
-                "Flutter 开发 MumuXi 重构版，技术文档学习。",
+                "Flutter 版 MumuXi，是查阅技术文章与美图的一款应用，全新版本使用 Flutter 跨平台框架开发。",
                 "https://android.myapp.com/myapp/detail.htm?apkName=com.yang.bruce.mumuxi",
                 "2018-12-28 18:06:08",
                 "2019-9-17 09:09:12",
@@ -75,19 +93,7 @@ public class AboutActivity extends AbsAboutActivity {
                 "https://github.com/yangxiaoge/wechat_weather",
                 "2017-08-28 18:20:08",
                 "2018-9-19 17:09:20",
-                7.99,
-                false
-        ));
-
-        items.add(new Recommendation(
-                0, "family_location",
-                "https://raw.githubusercontent.com/yangxiaoge/family_location/master/app/src/main/res/mipmap-xxhdpi/ic_logo.png",
-                "com.yjn.familylocation",
-                "\uD83D\uDC6A 定位亲人位置，守护亲人！",
-                "https://github.com/yangxiaoge/family_location",
-                "2019-09-12 14:49:18",
-                "2019-9-17 10:08:32",
-                13.7,
+                0,
                 false
         ));
         items.add(new Recommendation(
@@ -105,7 +111,7 @@ public class AboutActivity extends AbsAboutActivity {
                 0, "全局水印",
                 "https://raw.githubusercontent.com/yangxiaoge/GlobalWaterMarker/master/app/src/main/res/mipmap-xxhdpi/ic_launcher.png",
                 "com.yjn.global.watermarker",
-                "全局水印",
+                "手机添加全局水印",
                 "https://github.com/yangxiaoge/GlobalWaterMarker",
                 "2019-09-10 11:06:30",
                 "2019-09-10 11:09:50",
@@ -116,7 +122,7 @@ public class AboutActivity extends AbsAboutActivity {
                 0, "应用安装播报",
                 "https://raw.githubusercontent.com/yangxiaoge/app-install-listen/master/app/src/main/res/mipmap-xxhdpi/icon.png",
                 "com.yjn.applisten",
-                "全局水印",
+                "应用安装监控并播报语音",
                 "https://github.com/yangxiaoge/app-install-listen",
                 "2019-09-09 14:14:30",
                 "2019-09-09 14:14:30",

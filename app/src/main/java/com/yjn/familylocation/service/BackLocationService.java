@@ -1,6 +1,7 @@
 package com.yjn.familylocation.service;
 
 import android.app.Service;
+import android.app.TaskStackBuilder;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
@@ -8,7 +9,6 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 
 import com.amap.api.location.AMapLocation;
-import com.yjn.familylocation.MainActivity;
 import com.yjn.familylocation.event.GetLocationEvent;
 import com.yjn.familylocation.util.GDLocationUtil;
 import com.yjn.familylocation.util.ToastUtils;
@@ -16,6 +16,9 @@ import com.yjn.familylocation.util.ToastUtils;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * <pre>
@@ -28,6 +31,10 @@ import org.greenrobot.eventbus.ThreadMode;
 public class BackLocationService extends Service {
     public static final String TAG = BackLocationService.class.getSimpleName();
     private String requestInstallationId;
+    private Timer timer;
+    //10分钟
+    private int period = 10 * 60 * 1000;
+//    private int period = 10   * 1000;
 
     @Nullable
     @Override
@@ -45,6 +52,11 @@ public class BackLocationService extends Service {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
         GDLocationUtil.destroy();
+        if(timer != null){
+            timer.purge();
+            timer.cancel();
+            timer = null;
+        }
     }
 
     @Override
@@ -54,6 +66,29 @@ public class BackLocationService extends Service {
         EventBus.getDefault().register(this);
         // 定位工具初始化
         GDLocationUtil.init(this);
+
+        watchdog();
+    }
+
+    /**
+     * 看门狗，定时开关BackPushService
+     * todo 替换成小米推送后这个功能可以取消掉,leadcloud的websocket不稳定经常挂掉
+     */
+    private void watchdog() {
+        Intent serviceIntent = new Intent(getApplicationContext(), BackPushService.class);
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                //先关闭，再启动
+                try {
+                    stopService(serviceIntent);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                startService(serviceIntent);
+            }
+        }, period, period);
     }
 
     /**

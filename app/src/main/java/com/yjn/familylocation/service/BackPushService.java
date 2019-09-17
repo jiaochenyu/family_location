@@ -76,6 +76,7 @@ public class BackPushService extends Service {
         if (screenBroadcastReceiver != null) {
             unregisterReceiver(screenBroadcastReceiver);
         }
+        stopForeground(true);
     }
 
     @Override
@@ -102,20 +103,14 @@ public class BackPushService extends Service {
      * 前台通知
      */
     public void setForegroundService() {
-        // 设置启动的程序，如果存在则找出，否则新的启动
-        Intent intent = new Intent(Intent.ACTION_MAIN);
-        intent.addCategory(Intent.CATEGORY_LAUNCHER);
-        intent.setComponent(new ComponentName(this, MainActivity.class));//用ComponentName得到class对象
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
-                | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);// 关键的一步，设置启动模式，两种情况
-
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, 0);//将经过设置了的Intent绑定给PendingIntent
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
+                new Intent(this, MainActivity.class), 0);
 
         NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
-        NotificationCompat.Builder builder1 = new NotificationCompat.Builder(this, getPackageName());
-        builder1
-                .setContentIntent(contentIntent)
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, getPackageName());
+        builder
+                .setContentIntent(pendingIntent)
                 .setSmallIcon(R.mipmap.ic_stat_shadowsocks)
                 .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_logo))
                 .setWhen(System.currentTimeMillis())
@@ -129,9 +124,9 @@ public class BackPushService extends Service {
                     NotificationManager.IMPORTANCE_NONE);
             nm.createNotificationChannel(channel);
         }
-        Notification notification1 = builder1.build();
+        Notification notification = builder.build();
         //前台运行服务
-        startForeground(20190916, notification1);
+        startForeground(20190916, notification);
     }
 
     /**
