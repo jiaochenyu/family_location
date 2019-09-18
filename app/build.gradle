@@ -11,7 +11,7 @@ android {
         applicationId "com.yjn.familylocation"
         minSdkVersion 21
         targetSdkVersion 28
-        versionCode 60
+        versionCode 61
         versionName "9.1.8"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 

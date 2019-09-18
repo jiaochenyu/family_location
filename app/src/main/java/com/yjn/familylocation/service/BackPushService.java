@@ -101,7 +101,7 @@ public class BackPushService extends Service {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, getPackageName());
         builder
                 .setContentIntent(pendingIntent)
-                .setSmallIcon(R.mipmap.ic_stat_shadowsocks)
+                .setSmallIcon(R.mipmap.ic_keep)
                 .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_logo))
                 .setWhen(System.currentTimeMillis())
                 .setAutoCancel(false)

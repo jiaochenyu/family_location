@@ -317,6 +317,7 @@ public class MainActivity extends AppCompatActivity {
         manager.setApkName("family_keep.apk")
                 .setApkUrl(Constants.UPDATE_URL_BASE + updateBean.getApkData().getOutputFile())
                 .setSmallIcon(R.mipmap.app_update)
+//                .setSmallIcon(R.mipmap.ic_keep)
                 .setShowNewerToast(true)
                 .setConfiguration(configuration)
                 //.setDownloadPath(Environment.getExternalStorageDirectory() + "/AppUpdate")
