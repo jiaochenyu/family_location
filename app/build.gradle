@@ -11,7 +11,7 @@ android {
         applicationId "com.yjn.familylocation"
         minSdkVersion 21
         targetSdkVersion 28
-        versionCode 61
+        versionCode 62
         versionName "9.1.8"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -23,9 +23,6 @@ android {
 
     //签名配置
     signingConfigs {
-        debug {
-
-        }
         release {
             storeFile file("D:\\Software\\Nutstore\\Documents\\我的坚果云\\个人项目\\签名文件yangxiaoge\\yangxiaoge.jks")
             //release证书
@@ -36,6 +33,11 @@ android {
     }
 
     buildTypes {
+        debug {
+            //debug也使用release证书签名
+            signingConfig signingConfigs.release
+        }
+
         release {
             minifyEnabled false
             debuggable true

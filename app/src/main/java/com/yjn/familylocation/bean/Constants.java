@@ -11,6 +11,7 @@ package com.yjn.familylocation.bean;
 public class Constants {
     public static final String UPDATE_URL_BASE = "https://raw.githubusercontent.com/yangxiaoge/family_location/master/app/build/outputs/apk/release/";
     public static final String UPDATE_URL_CHECK = UPDATE_URL_BASE + "output.json";
+    public static final String INSTALLATIONID_BARCODE = "http://apis.juhe.cn/qrcode/api?key=b7feb5a7342448f4d9cba2bd844f8991&type=2&fgcolor=00b7ee&w=300&m=5&text=";
 
     //--------------sp key----------------//
     //sp name
