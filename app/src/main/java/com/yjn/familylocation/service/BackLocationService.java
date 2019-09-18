@@ -11,6 +11,7 @@ import com.yjn.familylocation.App;
 import com.yjn.familylocation.event.GetLocationEvent;
 import com.yjn.familylocation.util.GDLocationUtil;
 import com.yjn.familylocation.util.ToastUtils;
+import com.yjn.familylocation.util.Utils;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -71,14 +72,27 @@ public class BackLocationService extends Service {
     /**
      * 看门狗，定时开关BackPushService
      * todo 替换成小米推送后这个功能可以取消掉,leadcloud的websocket不稳定经常挂掉
+     * todo 10分钟重启一次应用应该比较费电，急需换成小米推送
      */
     private void watchdog() {
         timer = new Timer();
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                Log.i(TAG, "run: 重新初始化推送");
-                App.getInstance().init();
+                Log.i(TAG, "run: 定时重启");
+
+                if (!Utils.isAppForeground()) {
+                    Log.i(TAG, "run: 重启");
+                    //发送重启广播
+                    Intent intent1 = new Intent();
+                    intent1.setAction("com.yjn.restart.action");
+                    sendBroadcast(intent1);
+
+                    android.os.Process.killProcess(android.os.Process.myPid());
+                    System.exit(0);
+                }else {
+                    Log.i(TAG, "run: 应用处于前台，暂不重启");
+                }
             }
         }, period, period);
     }

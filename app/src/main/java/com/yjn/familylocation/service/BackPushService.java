@@ -25,7 +25,6 @@ import com.yjn.familylocation.bean.Constants;
 import com.yjn.familylocation.bean.MsgBean;
 import com.yjn.familylocation.event.GetLocationEvent;
 import com.yjn.familylocation.event.RequestEvent;
-import com.yjn.familylocation.receiver.ScreenBroadcastReceiver;
 import com.yjn.familylocation.util.SPUtils;
 import com.yjn.familylocation.util.ToastUtils;
 
@@ -34,6 +33,8 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import cn.leancloud.AVInstallation;
+import cn.leancloud.AVLogger;
+import cn.leancloud.AVOSCloud;
 import cn.leancloud.AVObject;
 import cn.leancloud.AVPush;
 import cn.leancloud.AVQuery;
@@ -56,7 +57,6 @@ public class BackPushService extends Service {
     private String installationId;
     private SPUtils spUtils;
     private boolean sendMsg;
-    private ScreenBroadcastReceiver screenBroadcastReceiver;
 
     @Nullable
     @Override
@@ -73,9 +73,6 @@ public class BackPushService extends Service {
     public void onDestroy() {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
-        if (screenBroadcastReceiver != null) {
-            unregisterReceiver(screenBroadcastReceiver);
-        }
         stopForeground(true);
     }
 
@@ -90,13 +87,6 @@ public class BackPushService extends Service {
 
         //前台通知
         setForegroundService();
-
-        screenBroadcastReceiver = new ScreenBroadcastReceiver();
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(Intent.ACTION_SCREEN_OFF);
-        filter.addAction(Intent.ACTION_SCREEN_ON);
-        filter.addAction(Intent.ACTION_USER_PRESENT);
-        registerReceiver(screenBroadcastReceiver, filter);
     }
 
     /**

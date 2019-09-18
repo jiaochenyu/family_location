@@ -95,27 +95,23 @@ public class GDLocationUtil {
             return;
         }
         // 设置定位监听
-        mlocationClient.setLocationListener(new AMapLocationListener() {
+        mlocationClient.setLocationListener(location -> {
+            if (location != null) {
+                //定位成功，取消定位
+                mlocationClient.stopLocation();
+                sLocation = location;
 
-            @Override
-            public void onLocationChanged(AMapLocation location) {
-                if (location != null) {
-                    //定位成功，取消定位
-                    mlocationClient.stopLocation();
-                    sLocation = location;
-
-                    long end = System.currentTimeMillis();
-                    if (end - lastLocateTime > 500) {
-                        lastLocateTime = end;
-                        listener.result(location);
-                    } else {
-                        Log.i(TAG, "onLocationChanged: 返回定位不要太频繁");
-                    }
-
+                long end = System.currentTimeMillis();
+                if (end - lastLocateTime > 1000) {
+                    lastLocateTime = end;
+                    listener.result(location);
                 } else {
-                    //获取定位数据失败
-                    ToastUtils.showShort("定位失败");
+                    Log.i(TAG, "onLocationChanged: 返回定位不要太频繁");
                 }
+
+            } else {
+                //获取定位数据失败
+                ToastUtils.showShort("定位失败");
             }
         });
         // 启动定位
