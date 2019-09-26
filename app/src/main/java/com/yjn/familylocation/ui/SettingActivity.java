@@ -13,7 +13,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.yjn.familylocation.R;
 import com.yjn.familylocation.bean.Constants;
-import com.yjn.familylocation.util.SPUtils;
+import com.yjn.familylocation.util.MMKVUtil;
 
 /**
  * <pre>
@@ -37,7 +37,7 @@ public class SettingActivity extends AppCompatActivity {
             supportActionBar.setDisplayHomeAsUpEnabled(true);
         }
 
-        String installationId = SPUtils.getInstance(Constants.SP_NAME).getString(Constants.INSTALLATIONID_SP,
+        String installationId = MMKVUtil.getString(Constants.INSTALLATIONID_SP,
                 "");
         TextView msg = findViewById(R.id.msg_tv);
         msg.setText("欢迎使用家人守护！\n\n" + "本机installationid:\n\n" + installationId);

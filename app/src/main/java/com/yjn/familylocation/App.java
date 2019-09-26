@@ -1,6 +1,9 @@
 package com.yjn.familylocation;
 
 import android.app.Application;
+import android.util.Log;
+
+import com.tencent.mmkv.MMKV;
 
 import cn.leancloud.AVLogger;
 import cn.leancloud.AVOSCloud;
@@ -28,6 +31,9 @@ public class App extends Application {
         super.onCreate();
         instance = this;
         init();
+
+        String rootDir = MMKV.initialize(this);
+        Log.i(TAG, "onCreate mmkv root: " + rootDir);
     }
 
     public void init() {

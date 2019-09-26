@@ -6,7 +6,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.IBinder;
@@ -25,7 +24,8 @@ import com.yjn.familylocation.bean.Constants;
 import com.yjn.familylocation.bean.MsgBean;
 import com.yjn.familylocation.event.GetLocationEvent;
 import com.yjn.familylocation.event.RequestEvent;
-import com.yjn.familylocation.util.SPUtils;
+import com.yjn.familylocation.util.MMKVUtil;
+import com.yjn.familylocation.util.RxToast;
 import com.yjn.familylocation.util.ToastUtils;
 
 import org.greenrobot.eventbus.EventBus;
@@ -33,8 +33,6 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import cn.leancloud.AVInstallation;
-import cn.leancloud.AVLogger;
-import cn.leancloud.AVOSCloud;
 import cn.leancloud.AVObject;
 import cn.leancloud.AVPush;
 import cn.leancloud.AVQuery;
@@ -55,7 +53,6 @@ public class BackPushService extends Service {
     //群组id
     public static final String CHANNEL_ID = "zhuzhuyang";
     private String installationId;
-    private SPUtils spUtils;
     private boolean sendMsg;
 
     @Nullable
@@ -81,7 +78,6 @@ public class BackPushService extends Service {
         super.onCreate();
         Log.i(TAG, "onCreate: 消息推送服务启动！");
         EventBus.getDefault().register(this);
-        spUtils = SPUtils.getInstance(Constants.SP_NAME);
 
         init();
 
@@ -136,14 +132,14 @@ public class BackPushService extends Service {
             public void onNext(AVObject avObject) {
                 // 关联 installationId 到用户表等操作。
                 installationId = AVInstallation.getCurrentInstallation().getInstallationId();
-                spUtils.put(Constants.INSTALLATIONID_SP, installationId);
+                MMKVUtil.put(Constants.INSTALLATIONID_SP, installationId);
                 Log.i(TAG, "onNext: " + "保存成功：" + installationId);
             }
 
             @Override
             public void onError(Throwable e) {
                 installationId = "";
-                spUtils.put(Constants.INSTALLATIONID_SP, installationId);
+                MMKVUtil.put(Constants.INSTALLATIONID_SP, installationId);
                 Log.e(TAG, "onError: 保存失败，错误信息：", e);
             }
 
@@ -178,7 +174,8 @@ public class BackPushService extends Service {
 
             @Override
             public void onNext(Object object) {
-                ToastUtils.showShort("消息发送成功");
+//                ToastUtils.showShort("消息发送成功");
+                RxToast.success("消息发送成功");
             }
 
             @Override
@@ -225,12 +222,14 @@ public class BackPushService extends Service {
 
             @Override
             public void onNext(JSONObject jsonObject) {
-                ToastUtils.showShort(sendMsg ? "指令发送成功" : "定位发送成功");
+//                ToastUtils.showShort(sendMsg ? "指令发送成功" : "定位发送成功");
+                RxToast.success(sendMsg ? "指令发送成功" : "定位发送成功");
             }
 
             @Override
             public void onError(Throwable e) {
-                ToastUtils.showShort("消息发送失败: " + e.getMessage());
+//                ToastUtils.showShort("消息发送失败: " + e.getMessage());
+                RxToast.error("消息发送失败: " + e.getMessage());
             }
 
             @Override

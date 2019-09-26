@@ -39,7 +39,7 @@ import com.yjn.familylocation.service.BackPushService;
 import com.yjn.familylocation.ui.AboutActivity;
 import com.yjn.familylocation.ui.SettingActivity;
 import com.yjn.familylocation.util.GDLocationUtil;
-import com.yjn.familylocation.util.SPUtils;
+import com.yjn.familylocation.util.MMKVUtil;
 import com.yjn.familylocation.util.ToastUtils;
 import com.yjn.familylocation.util.Utils;
 
@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
         Log.i(TAG, "onCreate: MainActivity嘿");
         EventBus.getDefault().register(this);
         targetId = findViewById(R.id.target_installid);
-        targetId.setText(SPUtils.getInstance(Constants.SP_NAME).getString(Constants.TARGET_INSTALLATIONID_SP,
+        targetId.setText(MMKVUtil.getString(Constants.TARGET_INSTALLATIONID_SP,
                 targetId.getText().toString().trim()));
 
         //mapview初始化
@@ -395,7 +395,7 @@ public class MainActivity extends AppCompatActivity {
         //接收方 id
         String targetInstallationId = targetId.getText().toString().trim();
         //缓存targetid，下次可以继续使用
-        SPUtils.getInstance(Constants.SP_NAME).put(Constants.TARGET_INSTALLATIONID_SP,
+        MMKVUtil.put(Constants.TARGET_INSTALLATIONID_SP,
                 targetInstallationId);
         //发送“请求定位”消息
         EventBus.getDefault().post(new RequestEvent(targetInstallationId));

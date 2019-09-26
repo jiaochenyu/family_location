@@ -122,6 +122,10 @@ public final class Utils {
         return app;
     }
 
+    public static Application getContext(){
+        return getApp();
+    }
+
     static ActivityLifecycleImpl getActivityLifecycle() {
         return ACTIVITY_LIFECYCLE;
     }
